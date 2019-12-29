@@ -1,7 +1,7 @@
 ---
 title: "Prediction_project"
 author: "David"
-date: "25 בדצמבר 2019"
+date: "25 December 2019"
 output: html_document
 ---
 
@@ -11,11 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Initialization: load packages and dataset
 
-
 ```{r}
-library(ggplot2); library(caret)
-dataset <- read.csv("C:/License Arius/pml-training.csv", na.strings = c("NA",""))
-validation_set <- read.csv("C:/License Arius/pml-testing.csv", na.strings = c("NA",""))
+library(ggplot2); library(caret); library(corrplot)
+dataset <- read.csv("C:/Coursera/pml-training.csv", na.strings = c("NA",""))
+validation_set <- read.csv("C:/Coursera/pml-testing.csv", na.strings = c("NA",""))
 ```
 
 ## We are now checking the structure of the data
@@ -26,8 +25,8 @@ str(dataset)
 ls(dataset)
 ```
 
-# We can see that the database contain variable with NAs.
-# We will have to remove these variables from the datasets.
+# We can see that the database contains variable with NAs.
+# We will have to remove it for our analysis.
 
 ```{r}
 colSums(is.na(dataset))
@@ -36,8 +35,7 @@ dataset_cleaned <- dataset[ , colSums(is.na(dataset)) == 0]
 dim(dataset)
 dim(dataset_cleaned)
 ```
-# we remove 100 variables from the original dataset.
-# We now remove useless colomns such as "X", "user_name" etc.
+# Removing the variables without measures
 
 ```{r}
 dataset_cleaned <- dataset_cleaned[,-c(1:7)]
@@ -55,6 +53,15 @@ testing = dataset_cleaned[-inTrain,]
 ```{r}
 ggplot(training, aes(x = classe, fill = classe)) +
   geom_bar(stat='count', position='dodge') +  geom_label(stat='count', aes(label=..count..))
+```
+
+## We plot the variables to identify which are correlated
+```{r}
+ls(training)
+CorMatrix_gyros <- cor(training[,15:26]) 
+CorMatrix_magnet <- cor(training[,27:38])
+corrplot(CorMatrix_gyros, method = "number")
+corrplot(CorMatrix_magnet, method = "number")
 ```
 
 ## We are now training the models using cross validation 
